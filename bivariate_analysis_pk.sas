@@ -1,6 +1,6 @@
 data Kaggle.Train2;
 set kaggle.train ;
-TotalSF=  TotalBsmtSF+ _1stFlrSF	+ _2ndFlrSF;
+TotalSF=  TotalBsmtSF + _1stFlrSF	+ _2ndFlrSF;
 run;
 
 /*
@@ -55,16 +55,19 @@ title Analyss ;
 run;
 
 
-/*
+ods graphics /imagefmt=pdf ;
+
 proc corr data=Kaggle.Train2  PEARSON
-plots(only maxpoints= 300000)= matrix(histogram);
+plots(only maxpoints= 3000000)= matrix(histogram nvar =ALL);
 var _1stFlrSF	_2ndFlrSF	_3SsnPorch BsmtFinSF1	BsmtFinSF2 BsmtUnfSF EnclosedPorch	GarageArea	GarageYrBlt	GrLivArea		
 LotArea		LowQualFinSF	MasVnrArea	MiscVal	OpenPorchSF	PoolArea	
 ScreenPorch	TotalBsmtSF	WoodDeckSF	YearBuilt	YearRemodAdd  TotalSF;
 title Analyss ;
 run;
-*/
 
+
+   
+   
 proc corr data=Kaggle.Train2  PEARSON
 plots(only maxpoints= 300000)= matrix(histogram);
 var _1stFlrSF	_2ndFlrSF	_3SsnPorch BsmtFinSF1	BsmtFinSF2 BsmtUnfSF ;
