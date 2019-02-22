@@ -4,6 +4,7 @@ TotalSF=  TotalBsmtSF + _1stFlrSF	+ _2ndFlrSF;
 result = GrLivArea - ( _1stFlrSF	+ _2ndFlrSF);
 sum_sf =_1stFlrSF	+ _2ndFlrSF;
 log_sale_price = log(SalePrice);
+
 if GrLivArea > 4000 then delete;
 run;
 
