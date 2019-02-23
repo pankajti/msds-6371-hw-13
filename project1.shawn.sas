@@ -6,7 +6,7 @@
 
 /* importing the training data set as 'TRAIN' */
 
-PROC IMPORT OUT= TRAIN DATAFILE= "/home/shawnj0/sasuser.v94/data/kaggle_train.csv" 
+PROC IMPORT OUT= kaggle.train DATAFILE= "/home/shawnj0/sasuser.v94/data/kaggle_train.csv" 
             DBMS=CSV REPLACE;
      GETNAMES=YES;
 RUN;
@@ -15,7 +15,7 @@ RUN;
 /* the outliers, SqFt over 4000 are included */ 
 
 DATA C21AMES;
-  SET TRAIN(WHERE=(Neighborhood = 'NAmes' OR Neighborhood = 'Edwards' OR Neighborhood = 'BrkSide'));
+  SET kaggle.train(WHERE=(Neighborhood = 'NAmes' OR Neighborhood = 'Edwards' OR Neighborhood = 'BrkSide'));
   GrLiv100sqft = ROUND(GrLivArea/100); /* defining 100sqft unit Living Area value */
   KEEP Id Neighborhood GrLivArea GrLiv100sqft SalePrice;
 RUN;
@@ -50,7 +50,7 @@ RUN;
 /* But I'm concerned with high Leverage with 4000+ sqft outliers. So re-run modeling without outliers this time */
 
 DATA C21AMES2;
-  SET TRAIN(WHERE=((Neighborhood = 'NAmes' OR Neighborhood = 'Edwards' OR Neighborhood = 'BrkSide') AND GrLivArea < 4000));
+  SET kaggle.train(WHERE=((Neighborhood = 'NAmes' OR Neighborhood = 'Edwards' OR Neighborhood = 'BrkSide') AND GrLivArea < 4000));
   GrLiv100sqft = ROUND(GrLivArea/100); /* defining 100sqft unit Living Area value */
   KEEP Id Neighborhood GrLivArea GrLiv100sqft SalePrice;
 RUN;
@@ -63,5 +63,26 @@ RUN;
 
 /* The slope/intercept for Edwards are not statistically significant to BrkSide */
 /* So we will consider to combine Edwards and BrkSide with new data set C21AMES3 */
-  
+
+DATA C21AMES3;
+  SET C21AMES2; 
+  IF Neighborhood = 'Edwards' then Neighborhood = 'EdAndBr';
+  IF Neighborhood = 'BrkSide' then Neighborhood = 'EdAndBr';
+RUN;
+
 /* New model fitting in progress with C21AMES3 */
+PROC GLM DATA = C21AMES3;
+  CLASS Neighborhood (ref = 'EdAndBr');
+  MODEL SalePrice = GrLiv100sqft | Neighborhood / solution clparm;
+RUN;
+
+/* Two neighborhoods showed statistically significant interaction with the living room area sqft */
+/* exp(sales price)  = 27155.13 + 46257.29*NAmes + 8000.72*GrLiv100Sqft - 2483.52*NAmes*GrLivSqft */
+
+/* And we make cross-validation. */ 
+PROC GLM DATA = C21AMES3 PLOTS=ALL;
+  CLASS Neighborhood;
+  MODEL SalePrice = GrLiv100sqft | Neighborhood / solution;
+RUN;
+
+/* Cook's D, R-square looks better than first model. So this one will be our model */
