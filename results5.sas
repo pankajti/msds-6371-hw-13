@@ -31,6 +31,14 @@ if Predict <0 then SalePrice =10000;
 keep id salePrice;
 where id > 1460;
 
+data result_analysis ;
+set results;
+if predict > 0 then SalePrice=Predict;
+if Predict <0 then SalePrice =10000;
+keep id SalePrice  GarageArea LotArea YearBuilt YearRemodAdd  TotalSF2
+					BldgType  Neighborhood ExterQual  BsmtQual BsmtExposure KitchenQual Functional;
+where id > 1460;
 
-proc print data = result5;
+
+proc print data = result_analysis;
 run;

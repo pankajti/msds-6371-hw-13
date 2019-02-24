@@ -5,7 +5,7 @@ TotalSF2=  GrLivArea+TotalBsmtSF ;
 total_gr_base = GrLivArea + BsmtFinSF1;
 log_sale_price= log(salePrice);
 if GrLivArea > 4000 then delete;
-aaa = 1 if aa
+
 
 run;
 
